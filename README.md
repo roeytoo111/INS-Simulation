@@ -1,5 +1,5 @@
 
-```markdown
+
 # Strapdown Inertial Navigation System (INS) Simulation
 
 ## 📌 Overview
