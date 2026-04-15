@@ -1,3 +1,52 @@
-Strapdown Inertial Navigation System (INS) Simulation📌 OverviewThis project is a Python-based 6-DOF (Degrees of Freedom) simulation of a Strapdown Inertial Navigation System (INS). It demonstrates the core mathematical and physical principles of inertial navigation by simulating a moving body, generating synthetic IMU (Inertial Measurement Unit) data, and reconstructing the trajectory using Dead Reckoning.A key focus of this simulation is highlighting the characteristic drift that occurs in INS over time due to the double integration of uncompensated sensor errors (biases).✨ FeaturesTrue Trajectory Generation: Simulates a ground-truth 6-DOF motion profile with constant acceleration and angular velocity.Synthetic IMU Measurement: Calculates the Specific Force and angular rates as they would be measured by real accelerometers and gyroscopes in the body frame.Sensor Error Modeling: Injects constant biases into the accelerometer and gyroscope readings to simulate imperfect real-world sensors.Quaternion Kinematics: Uses quaternions for spatial rotation and attitude tracking, avoiding the "gimbal lock" problem associated with Euler angles.Strapdown Navigation Processor: Reconstructs the body's position, velocity, and attitude relying only on the noisy IMU measurements.Visualization: Generates comparative plots to visually demonstrate the growing divergence (drift) between the true trajectory and the INS-computed trajectory.🧰 PrerequisitesTo run this simulation, you will need Python installed along with the following libraries:numpy (for matrix operations and quaternion math)matplotlib (for plotting the results)You can install the dependencies using pip:Bashpip install numpy matplotlib
-🚀 UsageSimply execute the Python script. No external datasets or hardware are required.Bashpython ins_simulation.py
-Upon running, the script will process the 60-second simulation and automatically display a dashboard with three key plots:Position (North vs East): A top-down view comparing the true path vs. the INS-calculated path.Position Error (Drift) Over Time: A graph showing how the calculation error grows non-linearly (exponentially/polynomially) across the X, Y, and Z axes.Velocity (North Axis): A comparison of the true vs. computed velocity over time.🧠 How It Works (The Math)The simulation is broken down into several logical steps matching standard INS architecture:Attitude Propagation: The gyroscope measures angular velocity ($\omega$). This is used to update the attitude quaternion using the kinematic derivative: q_dot = 0.5 * q ⊗ [0, ω].Coordinate Transformation: A Direction Cosine Matrix (DCM) is extracted from the updated quaternion to rotate the accelerometer's readings from the Body Frame (the device) to the Navigation Frame (Earth/Local Level).Gravity Compensation: Accelerometers measure Specific Force (kinematic acceleration minus gravity). The algorithm adds the local gravity vector back to the rotated measurements to isolate pure kinematic acceleration.Integration: The isolated acceleration is integrated once to find velocity, and a second time to find position.⚠️ The Drift ProblemBecause the position is derived from a double integration of acceleration, any small constant error (bias) in the accelerometer grows quadratically over time ($t^2$). Worse, a constant error in the gyroscope causes a growing tilt error, which projects a portion of the massive gravity vector into the horizontal plane. This results in a position error that grows cubically ($t^3$).This script perfectly visualizes why standalone INS systems require external aiding (like GPS or Star Trackers) and Kalman Filtering for long-term accuracy.
+
+```markdown
+# Strapdown Inertial Navigation System (INS) Simulation
+
+## 📌 Overview
+This project is a Python-based 6-DOF (Degrees of Freedom) simulation of a Strapdown Inertial Navigation System (INS). It demonstrates the core mathematical and physical principles of inertial navigation by simulating a moving body, generating synthetic IMU (Inertial Measurement Unit) data, and reconstructing the trajectory using Dead Reckoning.
+
+A key focus of this simulation is highlighting the characteristic **drift** that occurs in INS over time due to the double integration of uncompensated sensor errors (biases).
+
+## ✨ Features
+* **True Trajectory Generation:** Simulates a ground-truth 6-DOF motion profile with constant acceleration and angular velocity.
+* **Synthetic IMU Measurement:** Calculates the Specific Force and angular rates as they would be measured by real accelerometers and gyroscopes in the body frame.
+* **Sensor Error Modeling:** Injects constant biases into the accelerometer and gyroscope readings to simulate imperfect real-world sensors.
+* **Quaternion Kinematics:** Uses quaternions for spatial rotation and attitude tracking, avoiding the "gimbal lock" problem associated with Euler angles.
+* **Strapdown Navigation Processor:** Reconstructs the body's position, velocity, and attitude relying *only* on the noisy IMU measurements.
+* **Visualization:** Generates comparative plots to visually demonstrate the growing divergence (drift) between the true trajectory and the INS-computed trajectory.
+
+## 🧰 Prerequisites
+To run this simulation, you will need Python installed along with the following libraries:
+* `numpy` (for matrix operations and quaternion math)
+* `matplotlib` (for plotting the results)
+
+You can install the dependencies using pip:
+```bash
+pip install numpy matplotlib
+```
+
+## 🚀 Usage
+Simply execute the Python script. No external datasets or hardware are required.
+
+```bash
+python ins_simulation.py
+```
+
+Upon running, the script will process the 60-second simulation and automatically display a dashboard with three key plots:
+1. **Position (North vs East):** A top-down view comparing the true path vs. the INS-calculated path.
+2. **Position Error (Drift) Over Time:** A graph showing how the calculation error grows non-linearly (exponentially/polynomially) across the X, Y, and Z axes.
+3. **Velocity (North Axis):** A comparison of the true vs. computed velocity over time.
+
+## 🧠 How It Works (The Math)
+
+The simulation is broken down into several logical steps matching standard INS architecture:
+
+1. **Attitude Propagation:** The gyroscope measures angular velocity ($\omega$). This is used to update the attitude quaternion using the kinematic derivative: `q_dot = 0.5 * q ⊗ [0, ω]`.
+2. **Coordinate Transformation:** A Direction Cosine Matrix (DCM) is extracted from the updated quaternion to rotate the accelerometer's readings from the Body Frame (the device) to the Navigation Frame (Earth/Local Level).
+3. **Gravity Compensation:** Accelerometers measure *Specific Force* (kinematic acceleration minus gravity). The algorithm adds the local gravity vector back to the rotated measurements to isolate pure kinematic acceleration.
+4. **Integration:** The isolated acceleration is integrated once to find velocity, and a second time to find position.
+
+## ⚠️ The Drift Problem
+Because the position is derived from a **double integration** of acceleration, any small constant error (bias) in the accelerometer grows quadratically over time ($t^2$). Worse, a constant error in the gyroscope causes a growing tilt error, which projects a portion of the massive gravity vector into the horizontal plane. This results in a position error that grows cubically ($t^3$). 
+
+This script perfectly visualizes why standalone INS systems require external aiding (like GPS or Star Trackers) and Kalman Filtering for long-term accuracy.
